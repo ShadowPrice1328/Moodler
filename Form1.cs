@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Moodler
@@ -43,6 +37,22 @@ namespace Moodler
                 else Environment.Exit(1);
 
                 File.Create(path);
+            }
+        }
+
+        private void Send_Click(object sender, EventArgs e)
+        {
+            List<RadioButton> radioButtons = new List<RadioButton>();
+            radioButtons.AddRange(new RadioButton[] { radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 });
+
+            foreach(RadioButton radioButton in radioButtons)
+            {
+                if(radioButton.Checked == true)
+                {
+                    int mood = Convert.ToInt32(radioButton.Text);
+
+                    //MessageBox.Show(mood.ToString());
+                }
             }
         }
     }
