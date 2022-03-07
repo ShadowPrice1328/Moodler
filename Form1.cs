@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 
@@ -8,6 +9,7 @@ namespace Moodler
     public partial class Form1 : Form
     {
         public string path = Properties.Settings.Default.path;
+        public string ExDate = Properties.Settings.Default.ExDate;
         public Form1()
         {
             FileCreate();
@@ -35,23 +37,44 @@ namespace Moodler
                     path = Properties.Settings.Default.path;
                 }
                 else Environment.Exit(1);
-
-                File.Create(path);
             }
         }
 
         private void Send_Click(object sender, EventArgs e)
         {
-            List<RadioButton> radioButtons = new List<RadioButton>();
-            radioButtons.AddRange(new RadioButton[] { radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 });
+            List<RadioButton> radioButtons = new List<RadioButton> { radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 };
 
-            foreach(RadioButton radioButton in radioButtons)
+            foreach (RadioButton radioButton in radioButtons)
             {
-                if(radioButton.Checked == true)
+                if (radioButton.Checked == true)
                 {
-                    int mood = Convert.ToInt32(radioButton.Text);
+                    string date = DateTime.Now.ToString("yyyy-MM-dd");
+                    int rate = Convert.ToInt32(radioButton.Text);
 
-                    //MessageBox.Show(mood.ToString());
+                    string head = "Date" + "," + "Rate";
+                    string RawLine = date + "," + rate + Environment.NewLine;
+
+                    if (File.Exists(path))
+                    {
+                        List<string> lines = new List<string>() { head, File.ReadAllText(path)};
+
+                        //DELETE.FUCKING.DUPLICATES!!!
+
+                        if (lines[lines.Count - 1].Contains(date))
+                        {
+                            lines.RemoveAt(lines.Count - 1);
+                            lines.Add(date + "," + rate);
+                        }
+                        else
+                        {
+                            lines.Add(RawLine);
+                        }
+                        File.WriteAllText(path, String.Join(Environment.NewLine, lines));
+                    }
+                    else
+                    {
+                        File.WriteAllText(path, head + Environment.NewLine + RawLine);
+                    }
                 }
             }
         }

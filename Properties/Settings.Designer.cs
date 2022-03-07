@@ -34,5 +34,17 @@ namespace Moodler.Properties {
                 this["path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"\"")]
+        public string ExDate {
+            get {
+                return ((string)(this["ExDate"]));
+            }
+            set {
+                this["ExDate"] = value;
+            }
+        }
     }
 }
