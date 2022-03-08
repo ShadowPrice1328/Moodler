@@ -70,7 +70,10 @@ namespace Moodler
 
                         File.WriteAllText(path, String.Join(Environment.NewLine, lines));
                     }
-                    else File.WriteAllText(path, head + Environment.NewLine + RawLine);
+                    else
+                    {
+                        File.WriteAllText(path, head + Environment.NewLine + RawLine);
+                    }
                 }
             }
         }
