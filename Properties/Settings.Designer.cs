@@ -37,13 +37,12 @@ namespace Moodler.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\"\"")]
-        public string ExDate {
+        public global::System.DateTime lastClicked {
             get {
-                return ((string)(this["ExDate"]));
+                return ((global::System.DateTime)(this["lastClicked"]));
             }
             set {
-                this["ExDate"] = value;
+                this["lastClicked"] = value;
             }
         }
     }

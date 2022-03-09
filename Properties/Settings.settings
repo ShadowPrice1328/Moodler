@@ -5,8 +5,8 @@
     <Setting Name="path" Type="System.String" Scope="User">
       <Value Profile="(Default)">""</Value>
     </Setting>
-    <Setting Name="ExDate" Type="System.String" Scope="User">
-      <Value Profile="(Default)">""</Value>
+    <Setting Name="lastClicked" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>
