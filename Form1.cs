@@ -57,21 +57,29 @@ namespace Moodler
                 if (radioButton.Checked == true)
                 {
                     int rate = Convert.ToInt32(radioButton.Text);
-                    string RawLine = DateTime.Now.ToString("MMMM")  + ",";
+                    string month = DateTime.Now.ToString("MMMM")  + ",";
+                    string numbers = "";
 
-                    for (int i = DateTime.Now.Day; i < DateTime.DaysInMonth(DateTime.Now.Year,DateTime.Now.Month); i++)
+                    for (int i = DateTime.Now.Day; i <= DateTime.DaysInMonth(DateTime.Now.Year,DateTime.Now.Month); i++)
                     {
-                        RawLine += i + ",";
+                        numbers += i + ",";
                     }
-                    RawLine += Environment.NewLine + "Rate" + "," + rate + ",";
+                    numbers += Environment.NewLine + "Rate" + "," + rate + ",";
 
-                    if (!File.Exists(path)) File.WriteAllText(path, RawLine);
-                    else
+                    if (!File.Exists(path)) File.WriteAllText(path, month + numbers);
+                    else File.AppendAllText(path, rate + ",");
+
+                    List<string> lines = File.ReadLines(path).ToList();
+
+                    string[] dates = lines[lines.Count - 2].Split(',');
+                    string lastDay = dates[dates.Length - 2];
+
+                    //make some generator of numbers kk
+
+                    if (DateTime.Now.Day.ToString() == lastDay)
                     {
-                        File.AppendAllText(path, rate + ",");                    
+                        File.AppendAllText(path, Environment.NewLine + Environment.NewLine + DateTime.Now.AddDays(1).ToString("MMMM") + "," + numbers);
                     }
-
-                    //List<string> lines = File.ReadLines(path).ToList();
 
                     Properties.Settings.Default.lastClicked = DateTime.Now;
                     Properties.Settings.Default.Save();
