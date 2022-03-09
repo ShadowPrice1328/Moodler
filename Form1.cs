@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Moodler
@@ -56,14 +57,14 @@ namespace Moodler
 
                     if (File.Exists(path))
                     {
-                        List<string> lines = new List<string>() { head, File.ReadAllText(path)};
+                        List<string> lines = File.ReadLines(path).ToList();
 
                         //DELETE.FUCKING.DUPLICATES!!!
 
                         if (lines[lines.Count - 1].Contains(date))
                         {
                             lines.RemoveAt(lines.Count - 1);
-                            lines.Add(date + "," + rate);
+                            lines.Add(RawLine);
                         }
                         else
                         {
@@ -71,7 +72,7 @@ namespace Moodler
                         }
                         File.WriteAllText(path, String.Join(Environment.NewLine, lines));
                     }
-                    else
+                    if (!File.Exists(path))
                     {
                         File.WriteAllText(path, head + Environment.NewLine + RawLine);
                     }
