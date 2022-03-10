@@ -78,6 +78,7 @@ namespace Moodler
                         string[] dates = lines[lines.Count - 2].Split(',');
 
                         int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
+                        int daysSkipped = DateTime.Now.Day - lastClicked.Day;
 
                         if (lastMonth < DateTime.Now.Month)
                         {
@@ -86,6 +87,14 @@ namespace Moodler
                         else
                         {
                             File.AppendAllText(path, rate + ",");
+                        }
+
+                        if (daysSkipped >= 2)
+                        {
+                            for (int i = 0; i <= (daysSkipped - 2); i++)
+                            {
+                                File.AppendAllText(path, " " + ",");
+                            }
                         }
                     }
 
