@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -58,27 +59,34 @@ namespace Moodler
                 {
                     int rate = Convert.ToInt32(radioButton.Text);
                     string month = DateTime.Now.ToString("MMMM")  + ",";
-                    string numbers = "";
+                    string days = "";
 
                     for (int i = DateTime.Now.Day; i <= DateTime.DaysInMonth(DateTime.Now.Year,DateTime.Now.Month); i++)
                     {
-                        numbers += i + ",";
+                        days += i + ",";
                     }
-                    numbers += Environment.NewLine + "Rate" + "," + rate + ",";
+                    days += Environment.NewLine + "Rate" + "," + rate + ",";
 
-                    if (!File.Exists(path)) File.WriteAllText(path, month + numbers);
-                    else File.AppendAllText(path, rate + ",");
-
-                    List<string> lines = File.ReadLines(path).ToList();
-
-                    string[] dates = lines[lines.Count - 2].Split(',');
-                    string lastDay = dates[dates.Length - 2];
-
-                    //make some generator of numbers kk
-
-                    if (DateTime.Now.Day.ToString() == lastDay)
+                    if (!File.Exists(path))
                     {
-                        File.AppendAllText(path, Environment.NewLine + Environment.NewLine + DateTime.Now.AddDays(1).ToString("MMMM") + "," + numbers);
+                        File.WriteAllText(path, month + days);
+                    }
+                    else
+                    {
+                        List<string> lines = File.ReadLines(path).ToList();
+
+                        string[] dates = lines[lines.Count - 2].Split(',');
+
+                        int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
+
+                        if (lastMonth < DateTime.Now.Month)
+                        {
+                            File.AppendAllText(path, Environment.NewLine + Environment.NewLine + month + days);
+                        }
+                        else
+                        {
+                            File.AppendAllText(path, rate + ",");
+                        }
                     }
 
                     Properties.Settings.Default.lastClicked = DateTime.Now;
