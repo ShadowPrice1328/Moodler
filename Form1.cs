@@ -59,6 +59,7 @@ namespace Moodler
                 {
                     int rate = Convert.ToInt32(radioButton.Text);
                     string month = DateTime.Now.ToString("MMMM")  + ",";
+                    string year = DateTime.Now.ToString("yyyy") + ",";
                     string days = "";
 
                     for (int i = DateTime.Now.Day; i <= DateTime.DaysInMonth(DateTime.Now.Year,DateTime.Now.Month); i++)
@@ -69,7 +70,8 @@ namespace Moodler
 
                     if (!File.Exists(path))
                     {
-                        File.WriteAllText(path, month + days);
+                        File.WriteAllText(path, year + Environment.NewLine + Environment.NewLine);
+                        File.AppendAllText(path, month + days);
                     }
                     else
                     {
@@ -80,8 +82,12 @@ namespace Moodler
                         int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
                         int daysSkipped = DateTime.Now.Day - lastClicked.Day;
 
-                        if (lastMonth < DateTime.Now.Month)
+                        if (lastMonth != DateTime.Now.Month)
                         {
+                            if (lastClicked.Year != DateTime.Now.Year)
+                            {
+                                File.AppendAllText(path, Environment.NewLine + Environment.NewLine + DateTime.Now.Year);
+                            }
                             File.AppendAllText(path, Environment.NewLine + Environment.NewLine + month + days);
                         }
                         else
