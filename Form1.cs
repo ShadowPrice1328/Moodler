@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -11,11 +12,15 @@ namespace Moodler
     {
         public string path = Properties.Settings.Default.path;
         public DateTime lastClicked = Properties.Settings.Default.lastClicked;
+        public bool reminder = Properties.Settings.Default.reminder;
         public Form1()
         {
             InitializeComponent();
+            if (reminder == true) Reminder.Checked = true;
 
-            if (File.Exists(path) && lastClicked >= DateTime.Now.AddHours(-24))
+            var yesterday = DateTime.Today.AddDays(-1).DayOfYear;
+
+            if (File.Exists(path) && lastClicked.DayOfYear > yesterday)
             {
                 Send.Enabled = false;
                 Text += " (come back tomorrow!)";
@@ -50,7 +55,6 @@ namespace Moodler
 
         private void Send_Click(object sender, EventArgs e)
         {
-
             List<RadioButton> radioButtons = new List<RadioButton> { radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 };
 
             foreach (RadioButton radioButton in radioButtons)
@@ -62,6 +66,7 @@ namespace Moodler
                     string year = DateTime.Now.ToString("yyyy") + ",";
                     string days = "";
 
+                    //Creating a line with days and Rate and mark
                     for (int i = DateTime.Now.Day; i <= DateTime.DaysInMonth(DateTime.Now.Year,DateTime.Now.Month); i++)
                     {
                         days += i + ",";
@@ -80,11 +85,16 @@ namespace Moodler
                         string[] dates = lines[lines.Count - 2].Split(',');
 
                         int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
+
+                        //lastClicked = DateTime.Now.AddDays(-2); /////////////////
+
                         int daysSkipped = DateTime.Now.Day - lastClicked.Day;
 
+                        //Month transition
                         if (lastMonth != DateTime.Now.Month)
                         {
-                            if (lastClicked.Year != DateTime.Now.Year)
+                            //Year transition
+                            if (lastClicked.Year != DateTime.Now.Year) 
                             {
                                 File.AppendAllText(path, Environment.NewLine + Environment.NewLine + DateTime.Now.Year);
                             }
@@ -92,25 +102,53 @@ namespace Moodler
                         }
                         else
                         {
+                            if (daysSkipped >= 2)
+                            {
+                                for (int i = 0; i <= (daysSkipped - 2); i++)
+                                {
+                                    File.AppendAllText(path, " " + ",");
+                                }
+                            }
                             File.AppendAllText(path, rate + ",");
                         }
-
-                        if (daysSkipped >= 2)
-                        {
-                            for (int i = 0; i <= (daysSkipped - 2); i++)
-                            {
-                                File.AppendAllText(path, " " + ",");
-                            }
-                        }
                     }
-
+                    
+                    //Memorizing today's click
                     Properties.Settings.Default.lastClicked = DateTime.Now;
                     Properties.Settings.Default.Save();
 
                     Send.Enabled = false;
                     Text += " (come back tomorrow!)";
+
+                    return;
                 }
             }
+        }
+        private void Reminder_Click(object sender, EventArgs e)
+        {
+            SetStartup();
+        }
+        private void SetStartup()
+        {
+            RegistryKey rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+            if (Reminder.Checked)
+            {
+                rk.SetValue(Name, Application.ExecutablePath);
+                reminder = true;
+                MessageBox.Show("Reminder | ON!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                rk.DeleteValue(Name, false);
+                reminder = false;
+                MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            Properties.Settings.Default.reminder = reminder;
+            Properties.Settings.Default.Save();
+
+            reminder = Properties.Settings.Default.reminder;
         }
     }
 }
