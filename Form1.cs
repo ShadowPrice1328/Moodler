@@ -12,24 +12,26 @@ namespace Moodler
     {
         public string path = Properties.Settings.Default.path;
         public DateTime lastClicked = Properties.Settings.Default.lastClicked;
-        public bool reminder = Properties.Settings.Default.reminder;
+        public bool reminder = Properties.Settings.Default.reminder; 
+
+        public DateTime today = DateTime.Today.AddDays(0);
         public Form1()
         {
             InitializeComponent();
             if (reminder == true) Reminder.Checked = true;
 
-            var yesterday = DateTime.Today.AddDays(-1).DayOfYear;
+            var yesterday = today.AddDays(-1).DayOfYear;
 
-            if (File.Exists(path) && lastClicked.DayOfYear > yesterday)
+            if (File.Exists(path) && lastClicked.DayOfYear > yesterday && lastClicked.Year == today.Year)
             {
                 Send.Enabled = false;
                 Text += " (come back tomorrow!)";
             }
 
-            FileCreate();
+            SetPath();
         }
 
-        private void FileCreate()
+        private void SetPath()
         {
             textBox1.Text = path;
 
@@ -40,7 +42,7 @@ namespace Moodler
                     Description = "Select a folder where your mood will be located"
                 };
 
-                //Setting and memorizing the path
+                //Setting and memorizing the path to properties
 
                 if (fbd.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
@@ -62,12 +64,14 @@ namespace Moodler
                 if (radioButton.Checked == true)
                 {
                     int rate = Convert.ToInt32(radioButton.Text);
-                    string month = DateTime.Now.ToString("MMMM")  + ",";
-                    string year = DateTime.Now.ToString("yyyy") + ",";
+                    string month = today.ToString("MMMM")  + ",";
+                    string year = today.ToString("yyyy") + ",";
                     string days = "";
+                    
+                    // (Month) 1 2 3 4 5
+                    // Rate    4 4 5 5 3
 
-                    //Creating a line with days and Rate and mark
-                    for (int i = DateTime.Now.Day; i <= DateTime.DaysInMonth(DateTime.Now.Year,DateTime.Now.Month); i++)
+                    for (int i = today.Day; i <= DateTime.DaysInMonth(today.Year, today.Month); i++)
                     {
                         days += i + ",";
                     }
@@ -77,6 +81,8 @@ namespace Moodler
                     {
                         File.WriteAllText(path, year + Environment.NewLine + Environment.NewLine);
                         File.AppendAllText(path, month + days);
+
+                        File.SetAttributes(path, FileAttributes.ReadOnly);
                     }
                     else
                     {
@@ -86,17 +92,15 @@ namespace Moodler
 
                         int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
 
-                        //lastClicked = DateTime.Now.AddDays(-2); /////////////////
-
-                        int daysSkipped = DateTime.Now.Day - lastClicked.Day;
+                        int daysSkipped = today.Day - lastClicked.Day;
 
                         //Month transition
-                        if (lastMonth != DateTime.Now.Month)
-                        {
+                        if (lastMonth != today.Month || lastClicked.Year != today.Year)
+                        {   
                             //Year transition
-                            if (lastClicked.Year != DateTime.Now.Year) 
+                            if (lastClicked.Year != today.Year)
                             {
-                                File.AppendAllText(path, Environment.NewLine + Environment.NewLine + DateTime.Now.Year);
+                                File.AppendAllText(path, Environment.NewLine + Environment.NewLine + today.Year);
                             }
                             File.AppendAllText(path, Environment.NewLine + Environment.NewLine + month + days);
                         }
@@ -114,7 +118,7 @@ namespace Moodler
                     }
                     
                     //Memorizing today's click
-                    Properties.Settings.Default.lastClicked = DateTime.Now;
+                    Properties.Settings.Default.lastClicked = today;
                     Properties.Settings.Default.Save();
 
                     Send.Enabled = false;
