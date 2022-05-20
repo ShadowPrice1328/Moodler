@@ -13,7 +13,7 @@ namespace Moodler
     {
         public string path = Properties.Settings.Default.path;
         public DateTime lastClicked = Properties.Settings.Default.lastClicked;
-        public static DateTime today = DateTime.Today;
+        public static DateTime today = DateTime.Today.AddDays(365);
         public Form1()
         {
             InitializeComponent();
@@ -26,11 +26,11 @@ namespace Moodler
             {
                 if (task.Name == "Moodler")
                 {
-                    Reminder.Checked = true;
+                    _hour.Visible = true;
+                    _hour.Text = DateTime.ParseExact(task.NextRunTime.Hour.ToString(), "HH", CultureInfo.CurrentCulture).ToString("t");
                     return;
                 }
             }
-
             var yesterday = today.AddDays(-1).DayOfYear;
 
             if (File.Exists(path) && lastClicked.DayOfYear > yesterday && lastClicked.Year == today.Year) //Disabling button
@@ -60,7 +60,6 @@ namespace Moodler
 
             textBox1.Text = path;
         }
-
         private void Send_Click(object sender, EventArgs e)
         {
             List<RadioButton> radioButtons = new List<RadioButton> { radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 };
@@ -131,20 +130,29 @@ namespace Moodler
 
             File.SetAttributes(path, FileAttributes.ReadOnly);
         }
-        private void Reminder_Click(object sender, EventArgs e)
+        private void SetTask(string hour)
         {
-            if (Reminder.Checked) SetTask();
-            else DeleteTask();
-        }
-        private void SetTask()
-        {
-            TaskService.Instance.Execute(Assembly.GetEntryAssembly().Location).Every(1).Days().Starting("6:00pm").AsTask("Moodler");
-            MessageBox.Show("Reminder | ON!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            TaskService.Instance.Execute(Assembly.GetEntryAssembly().Location).Every(1).Days().Starting(hour).AsTask("Moodler");
+            MessageBox.Show($"Reminder | ON! {hour} everyday", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            _hour.Visible = true;
+            _hour.Text = hour; 
         }
         private void DeleteTask()
         {
-            TaskService.Instance.RootFolder.DeleteTask("Moodler");
-            MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            foreach (Task task in TaskService.Instance.RootFolder.Tasks)
+            {
+                if (task.Name == "Moodler")
+                {
+                    TaskService.Instance.RootFolder.DeleteTask(task.Name);
+                    MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    _hour.Text = "";
+                    _hour.Visible = false;
+
+                    return;
+                }
+            }
         }
         private class Record
         {
@@ -158,6 +166,20 @@ namespace Moodler
             public string month;
             public string year;
             public string days;
+        }
+
+        private void remSet_Click(object sender, EventArgs e)
+        {
+            if (AM.Checked == true || PM.Checked == true)
+            {
+                if (AM.Checked == true) SetTask(hourChoice.Value + ":00am");
+                else if (PM.Checked == true) SetTask(hourChoice.Value + ":00pm");
+            }
+        }
+
+        private void remDelete_Click(object sender, EventArgs e)
+        {
+            DeleteTask();
         }
     }
 }

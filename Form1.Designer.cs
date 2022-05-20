@@ -36,8 +36,15 @@
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.radioButton5 = new System.Windows.Forms.RadioButton();
-            this.Reminder = new System.Windows.Forms.CheckBox();
             this.Send = new System.Windows.Forms.Button();
+            this.hourChoice = new System.Windows.Forms.NumericUpDown();
+            this.AM = new System.Windows.Forms.RadioButton();
+            this.PM = new System.Windows.Forms.RadioButton();
+            this.Remind = new System.Windows.Forms.Label();
+            this.remSet = new System.Windows.Forms.Button();
+            this.remDelete = new System.Windows.Forms.Button();
+            this._hour = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.hourChoice)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -121,18 +128,6 @@
             this.radioButton5.Text = "5";
             this.radioButton5.UseVisualStyleBackColor = true;
             // 
-            // Reminder
-            // 
-            this.Reminder.AutoSize = true;
-            this.Reminder.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Reminder.Location = new System.Drawing.Point(12, 139);
-            this.Reminder.Name = "Reminder";
-            this.Reminder.Size = new System.Drawing.Size(88, 25);
-            this.Reminder.TabIndex = 8;
-            this.Reminder.Text = "Remind";
-            this.Reminder.UseVisualStyleBackColor = true;
-            this.Reminder.Click += new System.EventHandler(this.Reminder_Click);
-            // 
             // Send
             // 
             this.Send.Font = new System.Drawing.Font("Century Gothic", 12F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -144,6 +139,94 @@
             this.Send.UseVisualStyleBackColor = true;
             this.Send.Click += new System.EventHandler(this.Send_Click);
             // 
+            // hourChoice
+            // 
+            this.hourChoice.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.hourChoice.Location = new System.Drawing.Point(89, 140);
+            this.hourChoice.Maximum = new decimal(new int[] {
+            12,
+            0,
+            0,
+            0});
+            this.hourChoice.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.hourChoice.Name = "hourChoice";
+            this.hourChoice.ReadOnly = true;
+            this.hourChoice.Size = new System.Drawing.Size(39, 24);
+            this.hourChoice.TabIndex = 10;
+            this.hourChoice.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // AM
+            // 
+            this.AM.AutoSize = true;
+            this.AM.Location = new System.Drawing.Point(134, 134);
+            this.AM.Name = "AM";
+            this.AM.Size = new System.Drawing.Size(41, 17);
+            this.AM.TabIndex = 11;
+            this.AM.TabStop = true;
+            this.AM.Text = "AM";
+            this.AM.UseVisualStyleBackColor = true;
+            // 
+            // PM
+            // 
+            this.PM.AutoSize = true;
+            this.PM.Location = new System.Drawing.Point(134, 151);
+            this.PM.Name = "PM";
+            this.PM.Size = new System.Drawing.Size(41, 17);
+            this.PM.TabIndex = 12;
+            this.PM.Text = "PM";
+            this.PM.UseVisualStyleBackColor = true;
+            // 
+            // Remind
+            // 
+            this.Remind.AutoSize = true;
+            this.Remind.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Remind.Location = new System.Drawing.Point(12, 140);
+            this.Remind.Name = "Remind";
+            this.Remind.Size = new System.Drawing.Size(69, 21);
+            this.Remind.TabIndex = 13;
+            this.Remind.Text = "Remind";
+            // 
+            // remSet
+            // 
+            this.remSet.BackColor = System.Drawing.Color.ForestGreen;
+            this.remSet.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.remSet.Location = new System.Drawing.Point(186, 140);
+            this.remSet.Name = "remSet";
+            this.remSet.Size = new System.Drawing.Size(23, 23);
+            this.remSet.TabIndex = 14;
+            this.remSet.UseVisualStyleBackColor = false;
+            this.remSet.Click += new System.EventHandler(this.remSet_Click);
+            // 
+            // remDelete
+            // 
+            this.remDelete.BackColor = System.Drawing.Color.Red;
+            this.remDelete.Location = new System.Drawing.Point(210, 140);
+            this.remDelete.Name = "remDelete";
+            this.remDelete.Size = new System.Drawing.Size(23, 23);
+            this.remDelete.TabIndex = 15;
+            this.remDelete.UseVisualStyleBackColor = false;
+            this.remDelete.Click += new System.EventHandler(this.remDelete_Click);
+            // 
+            // _hour
+            // 
+            this._hour.AutoSize = true;
+            this._hour.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._hour.ForeColor = System.Drawing.Color.ForestGreen;
+            this._hour.Location = new System.Drawing.Point(236, 141);
+            this._hour.Name = "_hour";
+            this._hour.Size = new System.Drawing.Size(48, 18);
+            this._hour.TabIndex = 16;
+            this._hour.Text = "empty";
+            this._hour.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -151,8 +234,14 @@
             this.AutoScroll = true;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(400, 175);
+            this.Controls.Add(this._hour);
+            this.Controls.Add(this.remDelete);
+            this.Controls.Add(this.remSet);
+            this.Controls.Add(this.Remind);
+            this.Controls.Add(this.PM);
+            this.Controls.Add(this.AM);
+            this.Controls.Add(this.hourChoice);
             this.Controls.Add(this.Send);
-            this.Controls.Add(this.Reminder);
             this.Controls.Add(this.radioButton5);
             this.Controls.Add(this.radioButton4);
             this.Controls.Add(this.radioButton3);
@@ -166,6 +255,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Moodler";
+            ((System.ComponentModel.ISupportInitialize)(this.hourChoice)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -181,8 +271,14 @@
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton radioButton4;
         private System.Windows.Forms.RadioButton radioButton5;
-        private System.Windows.Forms.CheckBox Reminder;
         private System.Windows.Forms.Button Send;
+        private System.Windows.Forms.NumericUpDown hourChoice;
+        private System.Windows.Forms.RadioButton AM;
+        private System.Windows.Forms.RadioButton PM;
+        private System.Windows.Forms.Label Remind;
+        private System.Windows.Forms.Button remSet;
+        private System.Windows.Forms.Button remDelete;
+        private System.Windows.Forms.Label _hour;
     }
 }
 
