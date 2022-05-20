@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
+﻿using Microsoft.Win32.TaskScheduler;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,15 +13,16 @@ namespace Moodler
     {
         public string path = Properties.Settings.Default.path;
         public DateTime lastClicked = Properties.Settings.Default.lastClicked;
-
-        public DateTime today = DateTime.Today;
+        public static DateTime today = DateTime.Today;
         public Form1()
         {
             InitializeComponent();
-
-            textBox1.Text = path;
-
-            foreach (Task task in TaskService.Instance.RootFolder.Tasks)
+            SetPath();
+            Validation();
+        }
+        private void Validation()
+        {
+            foreach (Task task in TaskService.Instance.RootFolder.Tasks) //Setting flag
             {
                 if (task.Name == "Moodler")
                 {
@@ -33,15 +33,12 @@ namespace Moodler
 
             var yesterday = today.AddDays(-1).DayOfYear;
 
-            if (File.Exists(path) && lastClicked.DayOfYear > yesterday && lastClicked.Year == today.Year)
+            if (File.Exists(path) && lastClicked.DayOfYear > yesterday && lastClicked.Year == today.Year) //Disabling button
             {
                 Send.Enabled = false;
                 Text += " (come back tomorrow!)";
             }
-
-            SetPath();
         }
-
         private void SetPath()
         {
             if (!File.Exists(path))
@@ -51,17 +48,17 @@ namespace Moodler
                     Description = "Select a folder where your mood will be located"
                 };
 
-                //Setting and memorizing the path to properties
-
                 if (fbd.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
                     Properties.Settings.Default.path = fbd.SelectedPath + "\\Mood.csv";
                     Properties.Settings.Default.Save();
 
-                    path = Properties.Settings.Default.path;
+                    path = Properties.Settings.Default.path; //Memorizing the path
                 }
                 else Environment.Exit(1);
             }
+
+            textBox1.Text = path;
         }
 
         private void Send_Click(object sender, EventArgs e)
@@ -72,59 +69,9 @@ namespace Moodler
             {
                 if (radioButton.Checked == true)
                 {
-                    int rate = Convert.ToInt32(radioButton.Text);
-                    string month = today.ToString("MMMM")  + ",";
-                    string year = today.ToString("yyyy") + ",";
-                    string days = "";
+                    Record record = new Record(Convert.ToInt32(radioButton.Text), today.ToString("MMMM") + ",", today.ToString("yyyy") + ",");
                     
-                    // (Month) 1 2 3 4 5
-                    // Rate    4 4 5 5 3
-
-                    for (int i = today.Day; i <= DateTime.DaysInMonth(today.Year, today.Month); i++)
-                    {
-                        days += i + ",";
-                    }
-                    days += Environment.NewLine + "Rate" + "," + rate + ",";
-
-                    if (!File.Exists(path))
-                    {
-                        File.WriteAllText(path, year + Environment.NewLine + Environment.NewLine);
-                        File.AppendAllText(path, month + days);
-
-                        File.SetAttributes(path, FileAttributes.ReadOnly);
-                    }
-                    else
-                    {
-                        List<string> lines = File.ReadLines(path).ToList();
-
-                        string[] dates = lines[lines.Count - 2].Split(',');
-
-                        int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
-
-                        int daysSkipped = today.Day - lastClicked.Day;
-
-                        //Month transition
-                        if (lastMonth != today.Month || lastClicked.Year != today.Year)
-                        {   
-                            //Year transition
-                            if (lastClicked.Year != today.Year)
-                            {
-                                File.AppendAllText(path, Environment.NewLine + Environment.NewLine + today.Year);
-                            }
-                            File.AppendAllText(path, Environment.NewLine + Environment.NewLine + month + days);
-                        }
-                        else
-                        {
-                            if (daysSkipped >= 2)
-                            {
-                                for (int i = 0; i <= (daysSkipped - 2); i++)
-                                {
-                                    File.AppendAllText(path, " " + ",");
-                                }
-                            }
-                            File.AppendAllText(path, rate + ",");
-                        }
-                    }
+                    WriteRecord(record);
                     
                     //Memorizing today's click
                     Properties.Settings.Default.lastClicked = today;
@@ -136,6 +83,53 @@ namespace Moodler
                     return;
                 }
             }
+        }
+        private void WriteRecord(Record record)
+        {
+            for (int i = today.Day; i <= DateTime.DaysInMonth(today.Year, today.Month); i++)
+            {
+                record.days += i + ",";
+            }
+            record.days += Environment.NewLine + "Rate" + "," + record.rate + ",";
+
+            if (!File.Exists(path))
+            {
+                File.WriteAllText(path, record.year + Environment.NewLine + Environment.NewLine);
+                File.AppendAllText(path, record.month + record.days);
+            }
+            else
+            {
+                File.SetAttributes(path, FileAttributes.Normal);
+                List<string> lines = File.ReadLines(path).ToList();
+
+                string[] dates = lines[lines.Count - 2].Split(',');
+                int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
+                int daysSkipped = today.Day - lastClicked.Day;
+
+                //Month transition
+                if (lastMonth != today.Month || lastClicked.Year != today.Year)
+                {
+                    //Year transition
+                    if (lastClicked.Year != today.Year)
+                    {
+                        File.AppendAllText(path, Environment.NewLine + Environment.NewLine + today.Year);
+                    }
+                    File.AppendAllText(path, Environment.NewLine + Environment.NewLine + record.month + record.days);
+                }
+                else //Simple skipping
+                {
+                    if (daysSkipped >= 2)
+                    {
+                        for (int i = 0; i <= (daysSkipped - 2); i++)
+                        {
+                            File.AppendAllText(path, " " + ",");
+                        }
+                    }
+                    File.AppendAllText(path, record.rate + ",");
+                }
+            }
+
+            File.SetAttributes(path, FileAttributes.ReadOnly);
         }
         private void Reminder_Click(object sender, EventArgs e)
         {
@@ -151,6 +145,19 @@ namespace Moodler
         {
             TaskService.Instance.RootFolder.DeleteTask("Moodler");
             MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private class Record
+        {
+            public Record(int rate, string month, string year)
+            {
+                this.rate = rate;
+                this.month = month;
+                this.year = year;
+            }
+            public int rate;
+            public string month;
+            public string year;
+            public string days;
         }
     }
 }
