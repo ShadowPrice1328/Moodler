@@ -45,17 +45,5 @@ namespace Moodler.Properties {
                 this["lastClicked"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool reminder {
-            get {
-                return ((bool)(this["reminder"]));
-            }
-            set {
-                this["reminder"] = value;
-            }
-        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Moodler
@@ -12,13 +14,22 @@ namespace Moodler
     {
         public string path = Properties.Settings.Default.path;
         public DateTime lastClicked = Properties.Settings.Default.lastClicked;
-        public bool reminder = Properties.Settings.Default.reminder; 
 
-        public DateTime today = DateTime.Today.AddDays(0);
+        public DateTime today = DateTime.Today;
         public Form1()
         {
             InitializeComponent();
-            if (reminder == true) Reminder.Checked = true;
+
+            textBox1.Text = path;
+
+            foreach (Task task in TaskService.Instance.RootFolder.Tasks)
+            {
+                if (task.Name == "Moodler")
+                {
+                    Reminder.Checked = true;
+                    return;
+                }
+            }
 
             var yesterday = today.AddDays(-1).DayOfYear;
 
@@ -33,8 +44,6 @@ namespace Moodler
 
         private void SetPath()
         {
-            textBox1.Text = path;
-
             if (!File.Exists(path))
             {
                 FolderBrowserDialog fbd = new FolderBrowserDialog
@@ -130,29 +139,18 @@ namespace Moodler
         }
         private void Reminder_Click(object sender, EventArgs e)
         {
-            SetStartup();
+            if (Reminder.Checked) SetTask();
+            else DeleteTask();
         }
-        private void SetStartup()
+        private void SetTask()
         {
-            RegistryKey rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-
-            if (Reminder.Checked)
-            {
-                rk.SetValue(Name, Application.ExecutablePath);
-                reminder = true;
-                MessageBox.Show("Reminder | ON!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                rk.DeleteValue(Name, false);
-                reminder = false;
-                MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-
-            Properties.Settings.Default.reminder = reminder;
-            Properties.Settings.Default.Save();
-
-            reminder = Properties.Settings.Default.reminder;
+            TaskService.Instance.Execute(Assembly.GetEntryAssembly().Location).Every(1).Days().Starting("6:00pm").AsTask("Moodler");
+            MessageBox.Show("Reminder | ON!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private void DeleteTask()
+        {
+            TaskService.Instance.RootFolder.DeleteTask("Moodler");
+            MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
