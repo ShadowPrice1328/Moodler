@@ -147,7 +147,7 @@ namespace Moodler
         }
         private void SetTask(string hour)
         {
-            TaskService.Instance.Execute(Assembly.GetEntryAssembly()?.Location).Every(1).Days().Starting(hour).AsTask("Moodler");
+            TaskService.Instance.Execute(Application.ExecutablePath).Every(1).Days().Starting(hour).AsTask("Moodler");
             MessageBox.Show($"Reminder | ON! {hour} everyday", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             _hour.Visible = true;
