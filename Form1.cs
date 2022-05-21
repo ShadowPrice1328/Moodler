@@ -1,39 +1,52 @@
-﻿using Microsoft.Win32.TaskScheduler;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
+using Microsoft.Win32.TaskScheduler;
+using Newtonsoft.Json;
 
 namespace Moodler
 {
     public partial class Form1 : Form
     {
-        public string path = Properties.Settings.Default.path;
-        public DateTime lastClicked = Properties.Settings.Default.lastClicked;
-        public static DateTime today = DateTime.Today.AddDays(365);
+        public string dataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Moodler";
+
+        public static DateTime today = DateTime.Today;
         public Form1()
         {
             InitializeComponent();
             SetPath();
             Validation();
         }
+        private Properties ReadJson()
+        {
+            if(File.Exists(dataPath + "/props.json") && File.ReadAllText(dataPath + "/props.json") != "")
+            {
+                return JsonConvert.DeserializeObject<Properties>(File.ReadAllText(dataPath + "/props.json"));
+            }
+            else
+            {
+                return new Properties();
+            }
+        }
+        private void SaveJson(Properties props)
+        {
+            File.WriteAllText(dataPath + "/props.json", JsonConvert.SerializeObject(props));
+        }
         private void Validation()
         {
-            foreach (Task task in TaskService.Instance.RootFolder.Tasks) //Setting flag
+            Properties props = ReadJson();
+
+            foreach (Microsoft.Win32.TaskScheduler.Task task in TaskService.Instance.RootFolder.Tasks) //Setting flag
             {
                 if (task.Name == "Moodler")
                 {
                     _hour.Visible = true;
                     _hour.Text = DateTime.ParseExact(task.NextRunTime.Hour.ToString(), "HH", CultureInfo.CurrentCulture).ToString("t");
-                    return;
+                    break;
                 }
             }
             var yesterday = today.AddDays(-1).DayOfYear;
 
-            if (File.Exists(path) && lastClicked.DayOfYear > yesterday && lastClicked.Year == today.Year) //Disabling button
+            if (File.Exists(props.path) && props.lastClicked.DayOfYear > yesterday && props.lastClicked.Year == today.Year) //Disabling button
             {
                 Send.Enabled = false;
                 Text += " (come back tomorrow!)";
@@ -41,27 +54,28 @@ namespace Moodler
         }
         private void SetPath()
         {
-            if (!File.Exists(path))
+            Properties props = ReadJson();
+            if (!File.Exists(props.path))
             {
                 FolderBrowserDialog fbd = new FolderBrowserDialog
                 {
+                    UseDescriptionForTitle = true,
                     Description = "Select a folder where your mood will be located"
                 };
 
                 if (fbd.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    Properties.Settings.Default.path = fbd.SelectedPath + "\\Mood.csv";
-                    Properties.Settings.Default.Save();
-
-                    path = Properties.Settings.Default.path; //Memorizing the path
+                    props.path = fbd.SelectedPath + "\\Mood.csv";
+                    SaveJson(props);
                 }
                 else Environment.Exit(1);
             }
 
-            textBox1.Text = path;
+            textBox1.Text = props.path;
         }
         private void Send_Click(object sender, EventArgs e)
         {
+            Properties props = ReadJson();
             List<RadioButton> radioButtons = new List<RadioButton> { radioButton1, radioButton2, radioButton3, radioButton4, radioButton5 };
 
             foreach (RadioButton radioButton in radioButtons)
@@ -71,10 +85,10 @@ namespace Moodler
                     Record record = new Record(Convert.ToInt32(radioButton.Text), today.ToString("MMMM") + ",", today.ToString("yyyy") + ",");
                     
                     WriteRecord(record);
-                    
-                    //Memorizing today's click
-                    Properties.Settings.Default.lastClicked = today;
-                    Properties.Settings.Default.Save();
+
+                    props.lastClicked = today;
+
+                    SaveJson(props);
 
                     Send.Enabled = false;
                     Text += " (come back tomorrow!)";
@@ -85,35 +99,36 @@ namespace Moodler
         }
         private void WriteRecord(Record record)
         {
+            Properties props = ReadJson();
             for (int i = today.Day; i <= DateTime.DaysInMonth(today.Year, today.Month); i++)
             {
                 record.days += i + ",";
             }
             record.days += Environment.NewLine + "Rate" + "," + record.rate + ",";
 
-            if (!File.Exists(path))
+            if (!File.Exists(props.path))
             {
-                File.WriteAllText(path, record.year + Environment.NewLine + Environment.NewLine);
-                File.AppendAllText(path, record.month + record.days);
+                File.WriteAllText(props.path, record.year + Environment.NewLine + Environment.NewLine);
+                File.AppendAllText(props.path, record.month + record.days);
             }
             else
             {
-                File.SetAttributes(path, FileAttributes.Normal);
-                List<string> lines = File.ReadLines(path).ToList();
+                File.SetAttributes(props.path, FileAttributes.Normal);
+                List<string> lines = File.ReadLines(props.path).ToList();
 
                 string[] dates = lines[lines.Count - 2].Split(',');
                 int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
-                int daysSkipped = today.Day - lastClicked.Day;
+                int daysSkipped = today.Day - props.lastClicked.Day;
 
                 //Month transition
-                if (lastMonth != today.Month || lastClicked.Year != today.Year)
+                if (lastMonth != today.Month || props.lastClicked.Year != today.Year)
                 {
                     //Year transition
-                    if (lastClicked.Year != today.Year)
+                    if (props.lastClicked.Year != today.Year)
                     {
-                        File.AppendAllText(path, Environment.NewLine + Environment.NewLine + today.Year);
+                        File.AppendAllText(props.path, Environment.NewLine + Environment.NewLine + today.Year);
                     }
-                    File.AppendAllText(path, Environment.NewLine + Environment.NewLine + record.month + record.days);
+                    File.AppendAllText(props.path, Environment.NewLine + Environment.NewLine + record.month + record.days);
                 }
                 else //Simple skipping
                 {
@@ -121,18 +136,18 @@ namespace Moodler
                     {
                         for (int i = 0; i <= (daysSkipped - 2); i++)
                         {
-                            File.AppendAllText(path, " " + ",");
+                            File.AppendAllText(props.path, " " + ",");
                         }
                     }
-                    File.AppendAllText(path, record.rate + ",");
+                    File.AppendAllText(props.path, record.rate + ",");
                 }
             }
 
-            File.SetAttributes(path, FileAttributes.ReadOnly);
+            File.SetAttributes(props.path, FileAttributes.ReadOnly);
         }
         private void SetTask(string hour)
         {
-            TaskService.Instance.Execute(Assembly.GetEntryAssembly().Location).Every(1).Days().Starting(hour).AsTask("Moodler");
+            TaskService.Instance.Execute(Assembly.GetEntryAssembly()?.Location).Every(1).Days().Starting(hour).AsTask("Moodler");
             MessageBox.Show($"Reminder | ON! {hour} everyday", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             _hour.Visible = true;
@@ -140,7 +155,7 @@ namespace Moodler
         }
         private void DeleteTask()
         {
-            foreach (Task task in TaskService.Instance.RootFolder.Tasks)
+            foreach (Microsoft.Win32.TaskScheduler.Task task in TaskService.Instance.RootFolder.Tasks)
             {
                 if (task.Name == "Moodler")
                 {
@@ -165,9 +180,24 @@ namespace Moodler
             public int rate;
             public string month;
             public string year;
-            public string days;
+            public string days = "";
         }
+        public struct Properties
+        {
+            public string path;
+            public DateTime lastClicked;
 
+            public Properties()
+            {
+                this.path = "";
+                this.lastClicked = new DateTime();
+            }
+            public Properties(string path, DateTime lastClicked)
+            {
+                this.path = path;
+                this.lastClicked = lastClicked;
+            }
+        }
         private void remSet_Click(object sender, EventArgs e)
         {
             if (AM.Checked == true || PM.Checked == true)
