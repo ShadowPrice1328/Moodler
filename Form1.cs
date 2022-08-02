@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Reflection;
 using Microsoft.Win32.TaskScheduler;
 using Newtonsoft.Json;
 
@@ -51,6 +50,8 @@ namespace Moodler
                 Send.Enabled = false;
                 Text += " (come back tomorrow!)";
             }
+
+            if (File.Exists(props.path)) SaveFix();
         }
         private void SetPath()
         {
@@ -113,7 +114,6 @@ namespace Moodler
             }
             else
             {
-                File.SetAttributes(props.path, FileAttributes.Normal);
                 List<string> lines = File.ReadLines(props.path).ToList();
 
                 string[] dates = lines[lines.Count - 2].Split(',');
@@ -142,8 +142,27 @@ namespace Moodler
                     File.AppendAllText(props.path, record.rate + ",");
                 }
             }
+        }
+        private void SaveFix()
+        {
+            List<string> lines = File.ReadAllLines(ReadJson().path).ToList();
+          
+            for (int i = 0; i < lines.Count; i++)
+            {
+                int index = 0;
 
-            File.SetAttributes(props.path, FileAttributes.ReadOnly);
+                for (int j = 0; j < lines[i].Length - 1; j++)
+                {
+                    if (lines[i][j] == ',' && lines[i][j + 1] == ',')
+                    {
+                        index = j;
+                        lines[i] = lines[i].Remove(index + 1);
+                    }
+                }
+            }
+
+            var _lines = lines.Aggregate((a, b) => a + Environment.NewLine + b);
+            File.WriteAllText(ReadJson().path, _lines);
         }
         private void SetTask(string hour)
         {

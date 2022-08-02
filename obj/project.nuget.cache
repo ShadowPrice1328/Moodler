@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "y5dHKAS1LekN26f+K3rsWkZ7ROnLp0bLLeM4PpSunqkB9uLSm37Bw9Y6osMBbQoRyzrhPDNnaWr2Ef44OV0VaQ==",
+  "dgSpecHash": "QLubeKE42906V4oFUn6LV7nL0lbRijM58gTnta3f1ubbND/TDvksOdvj+YEWq+7RKJIegUO0BwNI73T5IBL5Fg==",
   "success": true,
   "projectFilePath": "D:\\repos\\Moodler\\Moodler.csproj",
   "expectedPackageFiles": [
@@ -11,7 +11,7 @@
     "C:\\Users\\kisuk\\.nuget\\packages\\system.security.accesscontrol\\5.0.0\\system.security.accesscontrol.5.0.0.nupkg.sha512",
     "C:\\Users\\kisuk\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
     "C:\\Users\\kisuk\\.nuget\\packages\\taskscheduler\\2.10.1\\taskscheduler.2.10.1.nupkg.sha512",
-    "C:\\Users\\kisuk\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22000.25\\microsoft.windows.sdk.net.ref.10.0.22000.25.nupkg.sha512"
+    "C:\\Users\\kisuk\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22000.26\\microsoft.windows.sdk.net.ref.10.0.22000.26.nupkg.sha512"
   ],
   "logs": []
 }

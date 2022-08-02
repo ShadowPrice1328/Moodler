@@ -17,7 +17,6 @@ D:\repos\Moodler\bin\Debug\net6.0-windows10.0.22000.0\win-x64\Microsoft.Windows.
 D:\repos\Moodler\bin\Debug\net6.0-windows10.0.22000.0\win-x64\WinRT.Runtime.dll
 D:\repos\Moodler\obj\Debug\net6.0-windows10.0.22000.0\win-x64\Moodler.csproj.AssemblyReference.cache
 D:\repos\Moodler\obj\Debug\net6.0-windows10.0.22000.0\win-x64\Moodler.Form1.resources
-D:\repos\Moodler\obj\Debug\net6.0-windows10.0.22000.0\win-x64\Moodler.Properties.Resources.resources
 D:\repos\Moodler\obj\Debug\net6.0-windows10.0.22000.0\win-x64\Moodler.csproj.GenerateResource.cache
 D:\repos\Moodler\obj\Debug\net6.0-windows10.0.22000.0\win-x64\Moodler.GeneratedMSBuildEditorConfig.editorconfig
 D:\repos\Moodler\obj\Debug\net6.0-windows10.0.22000.0\win-x64\Moodler.csproj.CoreCompileInputs.cache
