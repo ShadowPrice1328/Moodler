@@ -38,6 +38,11 @@ namespace Moodler
             {
                 if (task.Name == "Moodler")
                 {
+                    if (!File.Exists(props.path))
+                    {
+                        DeleteTask(true);
+                        return;
+                    }
                     _hour.Visible = true;
                     _hour.Text = DateTime.ParseExact(task.NextRunTime.Hour.ToString(), "HH", CultureInfo.CurrentCulture).ToString("t");
                     break;
@@ -172,14 +177,14 @@ namespace Moodler
             _hour.Visible = true;
             _hour.Text = hour; 
         }
-        private void DeleteTask()
+        protected void DeleteTask(bool silent = false)
         {
             foreach (Microsoft.Win32.TaskScheduler.Task task in TaskService.Instance.RootFolder.Tasks)
             {
                 if (task.Name == "Moodler")
                 {
                     TaskService.Instance.RootFolder.DeleteTask(task.Name);
-                    MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (silent == false) MessageBox.Show("Reminder | OFF!", " Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     _hour.Text = "";
                     _hour.Visible = false;
