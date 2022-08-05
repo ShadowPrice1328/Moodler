@@ -92,7 +92,7 @@ namespace Moodler
                     
                     WriteRecord(record);
 
-                    props.lastClicked = today;
+                    props.lastClicked = DateTime.Now;
 
                     SaveJson(props);
 
@@ -148,26 +148,38 @@ namespace Moodler
                 }
             }
         }
-        private void SaveFix()
+        private void SaveFix() //Deletes commas (if file was changed via Excel)
         {
-            List<string> lines = File.ReadAllLines(ReadJson().path).ToList();
-          
-            for (int i = 0; i < lines.Count; i++)
-            {
-                int index = 0;
+            DateTime lastChange = Truncate(File.GetLastAccessTime(ReadJson().path), TimeSpan.FromSeconds(1));
+            DateTime lastSave = Truncate(ReadJson().lastClicked, TimeSpan.FromSeconds(1));
 
-                for (int j = 0; j < lines[i].Length - 1; j++)
+            if (DateTime.Compare(lastChange, lastSave) >0) //Checking if file was manually changed
+            {
+                List<string> lines = File.ReadAllLines(ReadJson().path).ToList();
+
+                for (int i = 0; i < lines.Count; i++)
                 {
-                    if (lines[i][j] == ',' && lines[i][j + 1] == ',')
+                    int index = 0;
+
+                    for (int j = 0; j < lines[i].Length - 1; j++)
                     {
-                        index = j;
-                        lines[i] = lines[i].Remove(index + 1);
+                        if (lines[i][j] == ',' && lines[i][j + 1] == ',')
+                        {
+                            index = j;
+                            lines[i] = lines[i].Remove(index + 1);
+                        }
                     }
                 }
-            }
 
-            var _lines = lines.Aggregate((a, b) => a + Environment.NewLine + b);
-            File.WriteAllText(ReadJson().path, _lines);
+                var _lines = lines.Aggregate((a, b) => a + Environment.NewLine + b);
+                File.WriteAllText(ReadJson().path, _lines);
+            }
+        }
+        private DateTime Truncate(DateTime dateTime, TimeSpan timeSpan)
+        {
+            if (timeSpan == TimeSpan.Zero) return dateTime;
+            if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) return dateTime; 
+            return dateTime.AddTicks(-(dateTime.Ticks % timeSpan.Ticks));
         }
         private void SetTask(string hour)
         {

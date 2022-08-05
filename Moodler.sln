@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moodler", "Moodler.csproj", "{CE960178-959D-4DAA-A777-EAB5598D6473}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moodler", "Moodler.csproj", "{CE960178-959D-4DAA-A777-EAB5598D6473}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9B4452E4-472A-4BDA-A532-EC62216BCB5B}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
