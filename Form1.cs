@@ -28,6 +28,7 @@ namespace Moodler
         }
         private void SaveJson(Properties props)
         {
+            if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
             File.WriteAllText(dataPath + "/props.json", JsonConvert.SerializeObject(props));
         }
         private void Validation()

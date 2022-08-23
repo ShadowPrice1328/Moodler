@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\repos\\Moodler\\Moodler.csproj": {}
+    "D:\\Code\\ShadowPrice1328\\Moodler\\Moodler.csproj": {}
   },
   "projects": {
-    "D:\\repos\\Moodler\\Moodler.csproj": {
+    "D:\\Code\\ShadowPrice1328\\Moodler\\Moodler.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\repos\\Moodler\\Moodler.csproj",
+        "projectUniqueName": "D:\\Code\\ShadowPrice1328\\Moodler\\Moodler.csproj",
         "projectName": "Moodler",
-        "projectPath": "D:\\repos\\Moodler\\Moodler.csproj",
+        "projectPath": "D:\\Code\\ShadowPrice1328\\Moodler\\Moodler.csproj",
         "packagesPath": "C:\\Users\\kisuk\\.nuget\\packages\\",
-        "outputPath": "D:\\repos\\Moodler\\obj\\",
+        "outputPath": "D:\\Code\\ShadowPrice1328\\Moodler\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
           "C:\\Users\\kisuk\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -59,7 +55,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -80,12 +77,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.302\\RuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }
