@@ -123,8 +123,13 @@ namespace Moodler
                 List<string> lines = File.ReadLines(props.path).ToList();
 
                 string[] dates = lines[lines.Count - 2].Split(',');
+                string[] rates = lines[lines.Count - 1].Split(',');
+
                 int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
                 int daysSkipped = today.Day - props.lastClicked.Day;
+
+                string lastRate = rates[rates.Length - 1];
+                if (lastRate != " ") daysSkipped = 0;
 
                 //Month transition
                 if (lastMonth != today.Month || props.lastClicked.Year != today.Year)
@@ -151,36 +156,15 @@ namespace Moodler
         }
         private void SaveFix() //Deletes commas (if file was changed via Excel)
         {
-            DateTime lastChange = Truncate(File.GetLastAccessTime(ReadJson().path), TimeSpan.FromSeconds(1));
-            DateTime lastSave = Truncate(ReadJson().lastClicked, TimeSpan.FromSeconds(1));
+            List<string> lines = File.ReadAllLines(ReadJson().path).ToList();
 
-            if (DateTime.Compare(lastChange, lastSave) >0) //Checking if file was manually changed
+            for (int i = 0; i < lines.Count; i++)
             {
-                List<string> lines = File.ReadAllLines(ReadJson().path).ToList();
-
-                for (int i = 0; i < lines.Count; i++)
-                {
-                    int index = 0;
-
-                    for (int j = 0; j < lines[i].Length - 1; j++)
-                    {
-                        if (lines[i][j] == ',' && lines[i][j + 1] == ',')
-                        {
-                            index = j;
-                            lines[i] = lines[i].Remove(index + 1);
-                        }
-                    }
-                }
-
-                var _lines = lines.Aggregate((a, b) => a + Environment.NewLine + b);
-                File.WriteAllText(ReadJson().path, _lines);
+                lines[i] = lines[i].TrimEnd(',') + ",";
             }
-        }
-        private DateTime Truncate(DateTime dateTime, TimeSpan timeSpan)
-        {
-            if (timeSpan == TimeSpan.Zero) return dateTime;
-            if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) return dateTime; 
-            return dateTime.AddTicks(-(dateTime.Ticks % timeSpan.Ticks));
+
+            var _lines = lines.Aggregate((a, b) => a + Environment.NewLine + b);
+            File.WriteAllText(ReadJson().path, _lines);
         }
         private void SetTask(string hour)
         {
