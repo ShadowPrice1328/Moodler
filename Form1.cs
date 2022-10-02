@@ -35,7 +35,8 @@ namespace Moodler
         {
             Properties props = ReadJson();
 
-            foreach (Microsoft.Win32.TaskScheduler.Task task in TaskService.Instance.RootFolder.Tasks) //Setting flag
+            //Setting flag
+            foreach (Microsoft.Win32.TaskScheduler.Task task in TaskService.Instance.RootFolder.Tasks)
             {
                 if (task.Name == "Moodler")
                 {
@@ -56,8 +57,6 @@ namespace Moodler
                 Send.Enabled = false;
                 Text += " (come back tomorrow!)";
             }
-
-            if (File.Exists(props.path)) SaveFix();
         }
         private void SetPath()
         {
@@ -117,19 +116,18 @@ namespace Moodler
             {
                 File.WriteAllText(props.path, record.year + Environment.NewLine + Environment.NewLine);
                 File.AppendAllText(props.path, record.month + record.days);
+                File.SetAttributes(props.path, FileAttributes.ReadOnly);
             }
             else
             {
+                File.SetAttributes(props.path, FileAttributes.Normal);
+
                 List<string> lines = File.ReadLines(props.path).ToList();
 
                 string[] dates = lines[lines.Count - 2].Split(',');
-                string[] rates = lines[lines.Count - 1].Split(',');
 
                 int lastMonth = DateTime.ParseExact(dates[0], "MMMM", CultureInfo.CurrentCulture).Month;
                 int daysSkipped = today.Day - props.lastClicked.Day;
-
-                string lastRate = rates[rates.Length - 1];
-                if (lastRate != " ") daysSkipped = 0;
 
                 //Month transition
                 if (lastMonth != today.Month || props.lastClicked.Year != today.Year)
@@ -152,19 +150,9 @@ namespace Moodler
                     }
                     File.AppendAllText(props.path, record.rate + ",");
                 }
-            }
-        }
-        private void SaveFix() //Deletes commas (if file was changed via Excel)
-        {
-            List<string> lines = File.ReadAllLines(ReadJson().path).ToList();
 
-            for (int i = 0; i < lines.Count; i++)
-            {
-                lines[i] = lines[i].TrimEnd(',') + ",";
+                File.SetAttributes(props.path, FileAttributes.ReadOnly);
             }
-
-            var _lines = lines.Aggregate((a, b) => a + Environment.NewLine + b);
-            File.WriteAllText(ReadJson().path, _lines);
         }
         private void SetTask(string hour)
         {
